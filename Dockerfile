@@ -26,8 +26,9 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www
 
-# Install dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Install dependencies 
+# Added --no-scripts to prevent "package:discover" from failing without an APP_KEY during build
+RUN composer install --optimize-autoloader --no-dev --no-scripts
 
 # FIX 1: Ensure directories exist before setting permissions
 RUN mkdir -p /var/www/storage/framework/sessions \
@@ -35,12 +36,18 @@ RUN mkdir -p /var/www/storage/framework/sessions \
     /var/www/storage/framework/cache \
     /var/www/bootstrap/cache
 
-# FIX 2: Set strict permissions
+# FIX 2: Set permissions so Laravel can write logs and cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Expose port 10000
+# Render uses port 10000 by default for many services, or detects EXPOSE
 EXPOSE 10000
 
-# FIX 3: Clear all caches before starting to ensure Env Vars are fresh
-CMD sh -c "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000"
+# FIX 3: Run discovery and migrations at RUNTIME, not build time
+# We use "php artisan migrate --force" (not fresh) to keep your data safe.
+CMD sh -c "php artisan package:discover --ansi && \
+           php artisan config:cache && \
+           php artisan route:cache && \
+           php artisan view:cache && \
+           php artisan migrate --force && \
+           php artisan serve --host=0.0.0.0 --port=10000"
