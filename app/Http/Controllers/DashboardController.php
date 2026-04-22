@@ -31,6 +31,7 @@ class DashboardController extends Controller
             'expenses' => 'required|array|min:1',
             'expenses.*.label' => 'nullable|string|max:255',
             'expenses.*.amount' => 'required|numeric',
+            'expenses.*.paid' => 'boolean',
         ]);
     }
 
