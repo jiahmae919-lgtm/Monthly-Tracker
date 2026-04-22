@@ -43,4 +43,4 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
 EXPOSE 10000
 
 # FIX 3: Clear all caches before starting to ensure Env Vars are fresh
-CMD sh -c "php artisan config:clear && php artisan cache:clear && php artisan view:clear && php artisan migrate:fresh --force && php artisan serve --host=0.0.0.0 --port=10000"
+CMD sh -c "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000"
