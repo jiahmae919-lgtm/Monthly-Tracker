@@ -26,26 +26,32 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www
 
-# Install dependencies 
-# Added --no-scripts to prevent "package:discover" from failing without an APP_KEY during build
-RUN composer install --optimize-autoloader --no-dev --no-scripts
+# FIX: We set a temporary APP_KEY and DB_CONNECTION just for the build process
+# This prevents artisan discovery from failing when it can't find these values.
+ENV APP_KEY=base64:nz9T9vH/S2S8vX6p5p6p5p6p5p6p5p6p5p6p5p6p5p6=
+ENV DB_CONNECTION=sqlite
+ENV DB_DATABASE=:memory:
 
-# FIX 1: Ensure directories exist before setting permissions
+# Install dependencies
+RUN composer install --optimize-autoloader --no-dev
+
+# Ensure directories exist
 RUN mkdir -p /var/www/storage/framework/sessions \
     /var/www/storage/framework/views \
     /var/www/storage/framework/cache \
     /var/www/bootstrap/cache
 
-# FIX 2: Set permissions so Laravel can write logs and cache
+# Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
     chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Render uses port 10000 by default for many services, or detects EXPOSE
+# Render Port
 EXPOSE 10000
 
-# FIX 3: Run discovery and migrations at RUNTIME, not build time
-# We use "php artisan migrate --force" (not fresh) to keep your data safe.
-CMD sh -c "php artisan package:discover --ansi && \
+# The actual start command
+# At this stage, Render will override our "Fake" ENV vars with your real Dashboard secrets.
+CMD sh -c "php artisan config:clear && \
+           php artisan package:discover --ansi && \
            php artisan config:cache && \
            php artisan route:cache && \
            php artisan view:cache && \
