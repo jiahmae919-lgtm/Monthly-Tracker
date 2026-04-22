@@ -26,14 +26,14 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www
 
-# FIX: We set a temporary APP_KEY and DB_CONNECTION just for the build process
-# This prevents artisan discovery from failing when it can't find these values.
+# FIX: Set dummy variables for the build phase
 ENV APP_KEY=base64:nz9T9vH/S2S8vX6p5p6p5p6p5p6p5p6p5p6p5p6p5p6=
 ENV DB_CONNECTION=sqlite
 ENV DB_DATABASE=:memory:
 
-# Install dependencies
-RUN composer install --optimize-autoloader --no-dev
+# THE FIX: Added --no-scripts to ensure composer doesn't try to run Artisan
+# before the container is actually running on Render.
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Ensure directories exist
 RUN mkdir -p /var/www/storage/framework/sessions \
@@ -48,10 +48,10 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
 # Render Port
 EXPOSE 10000
 
-# The actual start command
-# At this stage, Render will override our "Fake" ENV vars with your real Dashboard secrets.
-CMD sh -c "php artisan config:clear && \
-           php artisan package:discover --ansi && \
+# The Startup Command
+# We run discovery and clear config here, where Render's REAL variables are present.
+CMD sh -c "php artisan package:discover --ansi && \
+           php artisan config:clear && \
            php artisan config:cache && \
            php artisan route:cache && \
            php artisan view:cache && \
