@@ -2,8 +2,8 @@
         <style>
             /* Keep toasts above modals, but don't block app clicks */
             .notyf {
-                /* Put Notyf behind modal layers (z-40 / z-50) */
-                z-index: 30 !important;
+                /* Put Notyf above modal layers (z-40 / z-50) */
+                z-index: 99999 !important;
                 pointer-events: none !important;
             }
 
