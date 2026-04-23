@@ -98,7 +98,7 @@
                                             <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100"
                                                 x-text="posted.label"></h4>
                                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"
-                                                x-text="'Posted: ' + (posted.created_at ? new Date(posted.created_at).toLocaleString('en-US', {timeZone: 'Asia/Manila'}) : '-')">
+                                                x-text="'Posted: ' + (posted.created_at ? new Date(posted.created_at).toLocaleDateString('en-US', {timeZone: 'Asia/Manila', dateStyle: 'medium'}) : '-')">
                                             </p>
                                         </div>
                                         <div class="flex gap-2">
