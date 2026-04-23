@@ -378,7 +378,7 @@
                                             <p
                                                 class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">
                                                 2nd Half Total (Until 30th)</p>
-                                            <p class="mt-1 text-xl font-bold text-rose-600 dark:text-rose-400"
+                                            <p class="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400"
                                                 x-text="formatCurrency(totalExpensesSecondHalf(month))"></p>
                                         </div>
                                     </div>
@@ -495,6 +495,19 @@
                                     :class="editRemaining() >= 0 ? 'text-emerald-600 dark:text-emerald-400' :
                                         'text-rose-600 dark:text-rose-400'"
                                     x-text="formatCurrency(editRemaining())"></p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
+                                <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">1st Half Total (Until 14th)</p>
+                                <p class="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400"
+                                    x-text="formatCurrency(totalExpensesFirstHalf(editingEntry))"></p>
+                            </div>
+                            <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
+                                <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">2nd Half Total (Until 30th)</p>
+                                <p class="mt-1 text-xl font-bold text-emerald-600 dark:emerald-indigo-400"
+                                    x-text="formatCurrency(totalExpensesSecondHalf(editingEntry))"></p>
                             </div>
                         </div>
 
@@ -626,6 +639,19 @@
                                     <p class="mt-1 text-xl font-bold"
                                         :class="Number(viewingEntry?.remaining) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
                                         x-text="formatCurrency(viewingEntry?.remaining)"></p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
+                                    <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">1st Half Total (Until 14th)</p>
+                                    <p class="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400"
+                                        x-text="formatCurrency(totalExpensesFirstHalf(viewingEntry))"></p>
+                                </div>
+                                <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
+                                    <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">2nd Half Total (Until 30th)</p>
+                                    <p class="mt-1 text-xl font-bold text-emerald-600 dark:emerald-indigo-400"
+                                        x-text="formatCurrency(totalExpensesSecondHalf(viewingEntry))"></p>
                                 </div>
                             </div>
                         </div>

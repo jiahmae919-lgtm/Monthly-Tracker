@@ -460,7 +460,7 @@
                         expenseList.forEach(expense => {
                             if (expense.due_date) {
                                 const day = new Date(expense.due_date).getDate();
-                                if (day >= 15 && day <= 31) {
+                                if (day >= 15 && day <= 30) {
                                     total += Number(expense.amount) || 0;
                                 }
                             }
