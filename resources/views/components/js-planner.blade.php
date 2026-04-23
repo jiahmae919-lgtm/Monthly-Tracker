@@ -212,6 +212,7 @@
                         }
                         this.viewingExpenseSavingIndex = expenseIndex;
                         const newPaid = !target.paid;
+                        const expenseName = (target.label || '').trim() || 'Expense';
                         const payload = {
                             label: (entry.label || '').trim(),
                             salary: Number(entry.salary) || 0,
@@ -246,7 +247,7 @@
                             }
                             this.viewingEntry = data.entry;
                             this.refreshSummary();
-                            this.notifySuccess(data.message || (newPaid ? 'Expense marked as paid.' : 'Expense marked as unpaid.'));
+                            this.notifySuccess(newPaid ? `${expenseName} is paid.` : `${expenseName} is unpaid.`);
                         } finally {
                             this.viewingExpenseSavingIndex = null;
                         }
@@ -344,7 +345,7 @@
                             this.showPlannerModal = false;
                         }
                         this.refreshSummary();
-                        this.notifySuccess(data.message || 'Monthly planner note saved.');
+                        this.notifySuccess(`${cleanLabel} added.`);
                     },
                     async deletePostedById(entryId) {
                         const item = this.postedMonths.find((entry) => entry.id === entryId);
@@ -370,7 +371,8 @@
                         this.postedMonths = this.postedMonths.filter((entry) => entry.id !== entryId);
                         this.currentPage = Math.max(1, Math.min(this.currentPage, this.getTotalPages()));
                         this.refreshSummary();
-                        this.notifySuccess(data.message || 'Monthly planner note deleted.');
+                        const label = (item.label || '').trim() || 'Month note';
+                        this.notifySuccess(`${label} deleted.`);
                     },
                     filteredPostedMonths() {
                         const search = this.postedSearch.toLowerCase();
@@ -518,7 +520,7 @@
                         }
                         this.closeEditModal();
                         this.refreshSummary();
-                        this.notifySuccess(data.message || 'Monthly planner note updated.');
+                        this.notifySuccess(`${cleanLabel} updated.`);
                     },
                     totalExpenses(month) {
                         return month.expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
