@@ -559,10 +559,23 @@
                             return;
                         }
 
+                        const ctx = canvas.getContext('2d');
                         const labels = this.postedMonths.map((item) => item.label);
                         const remainingData = this.postedMonths.map((item) => Number(item.remaining) || 0);
-                        const colors = remainingData.map((value) => value >= 0 ? 'rgba(16, 185, 129, 0.7)' :
-                            'rgba(244, 63, 94, 0.7)');
+                        const trendData = remainingData.map((value, index, arr) => {
+                            const prev = index > 0 ? arr[index - 1] : value;
+                            const next = index < arr.length - 1 ? arr[index + 1] : value;
+                            return (prev + value + next) / 3;
+                        });
+
+                        const barGradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
+                        barGradient.addColorStop(0, 'rgba(70, 245, 255, 0.95)');
+                        barGradient.addColorStop(0.5, 'rgba(115, 221, 255, 0.85)');
+                        barGradient.addColorStop(1, 'rgba(58, 131, 255, 0.55)');
+
+                        const lineGradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
+                        lineGradient.addColorStop(0, 'rgba(134, 196, 255, 0.45)');
+                        lineGradient.addColorStop(1, 'rgba(134, 196, 255, 0.03)');
 
                         if (this.chart) {
                             this.chart.destroy();
@@ -572,16 +585,36 @@
                             type: 'bar',
                             data: {
                                 labels: labels,
-                                datasets: [{
-                                    label: 'Monthly Earning',
-                                    data: remainingData,
-                                    backgroundColor: colors,
-                                    borderColor: colors.map((color) => color.replace('0.7', '1')),
-                                    borderWidth: 1,
-                                    borderRadius: 10,
-                                    borderSkipped: false,
-                                    maxBarThickness: 58,
-                                }]
+                                datasets: [
+                                    {
+                                        type: 'bar',
+                                        label: 'Monthly Remaining',
+                                        data: remainingData,
+                                        backgroundColor: barGradient,
+                                        borderColor: 'rgba(120, 229, 255, 0.95)',
+                                        borderWidth: 1.1,
+                                        borderRadius: 8,
+                                        borderSkipped: false,
+                                        maxBarThickness: 26,
+                                        barPercentage: 0.58,
+                                        categoryPercentage: 0.72,
+                                    },
+                                    {
+                                        type: 'line',
+                                        label: 'Trend',
+                                        data: trendData,
+                                        borderColor: 'rgba(177, 225, 255, 0.95)',
+                                        backgroundColor: lineGradient,
+                                        fill: true,
+                                        tension: 0.42,
+                                        pointRadius: 2.5,
+                                        pointHoverRadius: 4,
+                                        pointBackgroundColor: 'rgba(214, 239, 255, 1)',
+                                        pointBorderColor: 'rgba(214, 239, 255, 0.65)',
+                                        pointBorderWidth: 2,
+                                        borderWidth: 2,
+                                    }
+                                ]
                             },
                             options: {
                                 responsive: true,
@@ -591,8 +624,10 @@
                                         display: false
                                     },
                                     tooltip: {
+                                        intersect: false,
+                                        mode: 'index',
                                         callbacks: {
-                                            label: (context) => ` Earning: ${this.formatCurrency(context.raw)}`
+                                            label: (context) => ` ${context.dataset.label}: ${this.formatCurrency(context.raw)}`
                                         }
                                     }
                                 },
@@ -602,17 +637,27 @@
                                             display: false
                                         },
                                         ticks: {
-                                            color: '#94a3b8'
+                                            color: '#9fb1d1',
+                                            font: {
+                                                size: 11,
+                                                weight: '600',
+                                            },
                                         }
                                     },
                                     y: {
                                         beginAtZero: true,
                                         grid: {
-                                            color: 'rgba(148, 163, 184, 0.15)'
+                                            color: 'rgba(103, 86, 173, 0.28)',
+                                            drawBorder: false,
                                         },
                                         ticks: {
-                                            color: '#94a3b8',
-                                            callback: (value) => this.formatCurrency(value)
+                                            color: '#8ea3c3',
+                                            font: {
+                                                size: 11,
+                                            },
+                                            callback: (value) => new Intl.NumberFormat('en-US', {
+                                                maximumFractionDigits: 0,
+                                            }).format(Number(value) || 0),
                                         }
                                     }
                                 }
