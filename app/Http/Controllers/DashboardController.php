@@ -12,6 +12,7 @@ class DashboardController extends Controller
         return [
             'id' => $entry->id,
             'label' => $entry->month_label,
+            'year' => (int) ($entry->year ?? now()->year),
             'salary' => (float) $entry->salary,
             'cash' => (float) $entry->cash_on_hand,
             'total_expenses' => (float) $entry->total_expenses,
@@ -27,6 +28,7 @@ class DashboardController extends Controller
     {
         return $request->validate([
             'label' => 'required|string|max:255',
+            'year' => 'nullable|integer|min:2000|max:2100',
             'salary' => 'required|numeric',
             'cash' => 'required|numeric',
             'expenses' => 'required|array|min:1',
@@ -75,6 +77,7 @@ class DashboardController extends Controller
 
         $entry = $request->user()->monthlyPlannerEntries()->create([
             'month_label' => $validated['label'],
+            'year' => (int) ($validated['year'] ?? now()->year),
             'salary' => $salary,
             'cash_on_hand' => $cash,
             'total_expenses' => $totalExpenses,
@@ -111,6 +114,7 @@ class DashboardController extends Controller
 
         $ownedEntry->update([
             'month_label' => $validated['label'],
+            'year' => (int) ($validated['year'] ?? ($ownedEntry->year ?? now()->year)),
             'salary' => $salary,
             'cash_on_hand' => $cash,
             'total_expenses' => $totalExpenses,

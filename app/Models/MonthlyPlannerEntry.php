@@ -9,6 +9,7 @@ class MonthlyPlannerEntry extends Model
     protected $fillable = [
         'user_id',
         'month_label',
+        'year',
         'salary',
         'cash_on_hand',
         'total_expenses',
@@ -18,6 +19,7 @@ class MonthlyPlannerEntry extends Model
     ];
 
     protected $casts = [
+        'year' => 'integer',
         'salary' => 'decimal:2',
         'cash_on_hand' => 'decimal:2',
         'total_expenses' => 'decimal:2',

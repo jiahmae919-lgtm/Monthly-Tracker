@@ -140,9 +140,11 @@
                         return fallbackMessage;
                     },
                     addMonth() {
+                        const currentYear = new Date().getFullYear();
                         this.months.push({
                             id: Date.now() + Math.random(),
                             label: '',
+                            year: currentYear,
                             salary: 0,
                             cash: 0,
                             expenses: [{
@@ -164,6 +166,7 @@
                         this.editingEntry = {
                             id: posted.id,
                             label: posted.label || '',
+                            year: Number(posted.year) || new Date().getFullYear(),
                             salary: Number(posted.salary) || 0,
                             cash: Number(posted.cash) || 0,
                             expenses: (posted.expenses || []).map((expense) => {
@@ -215,6 +218,7 @@
                         const expenseName = (target.label || '').trim() || 'Expense';
                         const payload = {
                             label: (entry.label || '').trim(),
+                            year: Number(entry.year) || new Date().getFullYear(),
                             salary: Number(entry.salary) || 0,
                             cash: Number(entry.cash) || 0,
                             expenses: entry.expenses.map((e, i) => ({
@@ -303,6 +307,7 @@
                     async postMonth(monthIndex) {
                         const month = this.months[monthIndex];
                         const cleanLabel = (month.label || '').trim();
+                        const year = Number(month.year) || new Date().getFullYear();
 
                         if (!cleanLabel) {
                             this.notifyWarning('Please enter a month label.');
@@ -311,6 +316,7 @@
 
                         const payload = {
                             label: cleanLabel,
+                            year,
                             salary: Number(month.salary) || 0,
                             cash: Number(month.cash) || 0,
                             expenses: month.expenses.map((expense) => ({
@@ -345,7 +351,7 @@
                             this.showPlannerModal = false;
                         }
                         this.refreshSummary();
-                        this.notifySuccess(`${cleanLabel} added.`);
+                        this.notifySuccess(`${cleanLabel} ${year} added.`);
                     },
                     async deletePostedById(entryId) {
                         const item = this.postedMonths.find((entry) => entry.id === entryId);
@@ -479,6 +485,7 @@
                     async saveEdit() {
                         if (!this.editingEntry) return;
                         const cleanLabel = (this.editingEntry.label || '').trim();
+                        const year = Number(this.editingEntry.year) || new Date().getFullYear();
                         if (!cleanLabel) {
                             this.notifyWarning('Please enter a month label.');
                             return;
@@ -486,6 +493,7 @@
 
                         const payload = {
                             label: cleanLabel,
+                            year,
                             salary: Number(this.editingEntry.salary) || 0,
                             cash: Number(this.editingEntry.cash) || 0,
                             expenses: this.editingEntry.expenses.map((expense) => ({
@@ -520,7 +528,7 @@
                         }
                         this.closeEditModal();
                         this.refreshSummary();
-                        this.notifySuccess(`${cleanLabel} updated.`);
+                        this.notifySuccess(`${cleanLabel} ${year} updated.`);
                     },
                     totalExpenses(month) {
                         return month.expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
@@ -562,7 +570,7 @@
                         }
 
                         const ctx = canvas.getContext('2d');
-                        const labels = this.postedMonths.map((item) => item.label);
+                        const labels = this.postedMonths.map((item) => `${item.label} ${item.year || ''}`.trim());
                         const remainingData = this.postedMonths.map((item) => Number(item.remaining) || 0);
                         const trendData = remainingData.map((value, index, arr) => {
                             const prev = index > 0 ? arr[index - 1] : value;

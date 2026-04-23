@@ -96,7 +96,7 @@
                                     <div class="flex items-start justify-between gap-3">
                                         <div>
                                             <h4 class="text-base font-semibold text-gray-900 dark:text-gray-100"
-                                                x-text="posted.label"></h4>
+                                                x-text="`${posted.label}${posted.year ? ' ' + posted.year : ''}`"></h4>
                                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1"
                                                 x-text="'Posted: ' + (posted.created_at ? new Date(posted.created_at).toLocaleDateString('en-US', {timeZone: 'Asia/Manila', dateStyle: 'medium'}) : '-')">
                                             </p>
@@ -276,6 +276,12 @@
                                                 <option value="DECEMBER">DECEMBER</option>
                                             </select>
                                         </div>
+                                        <div class="lg:col-span-2">
+                                            <label
+                                                class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Year</label>
+                                            <input type="number" min="2000" max="2100" step="1" x-model.number="month.year"
+                                                class="h-11 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        </div>
                                         <div class="lg:col-span-3">
                                             <label
                                                 class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Sahod</label>
@@ -283,7 +289,7 @@
                                                 x-model.number="month.salary"
                                                 class="h-11 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                         </div>
-                                        <div class="lg:col-span-5">
+                                        <div class="lg:col-span-3">
                                             <label
                                                 class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Cash
                                                 on Hand</label>
@@ -416,21 +422,27 @@
                                 class="h-9 w-9 rounded-full bg-white/50 hover:bg-white/70 dark:bg-slate-700/70 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-100 text-lg leading-none">&times;</button>
                         </div>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                            <div>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                            <div class="lg:col-span-5">
                                 <label
                                     class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Month
                                     Label</label>
                                 <input type="text" x-model="editingEntry.label"
                                     class="h-11 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
-                            <div>
+                            <div class="lg:col-span-2">
+                                <label
+                                    class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Year</label>
+                                <input type="number" min="2000" max="2100" step="1" x-model.number="editingEntry.year"
+                                    class="h-11 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div class="lg:col-span-2">
                                 <label
                                     class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Sahod</label>
                                 <input type="number" step="0.01" x-model.number="editingEntry.salary"
                                     class="h-11 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                             </div>
-                            <div>
+                            <div class="lg:col-span-3">
                                 <label
                                     class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Cash
                                     on Hand</label>
@@ -549,7 +561,7 @@
                                 <div>
                                     <label class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Month Label</label>
                                     <div class="h-11 flex items-center px-3 rounded-lg bg-white/50 dark:bg-slate-900/50 text-gray-700 dark:text-gray-100 font-semibold">
-                                        <span x-text="viewingEntry?.label"></span>
+                                        <span x-text="`${viewingEntry?.label || ''}${viewingEntry?.year ? ' ' + viewingEntry.year : ''}`.trim()"></span>
                                     </div>
                                 </div>
                                 <div>
