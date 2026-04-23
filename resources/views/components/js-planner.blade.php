@@ -5,6 +5,7 @@
                 return {
                     showPlannerModal: false,
                     showEditModal: false,
+                    showViewModal: false,
                     months: [],
                     postedMonths: @json($plannerEntries),
                     postedSearch: '',
@@ -14,6 +15,8 @@
                     itemsPerPage: 5,
                     subtotalRemaining: Number(@json($remainingSubtotal)) || 0,
                     editingEntry: null,
+                    viewingEntry: null,
+                    viewingExpenseSavingIndex: null,
                     chart: null,
                     expandedEntries: new Set(),
                     addMonth() {
@@ -26,6 +29,7 @@
                                 id: Date.now() + Math.random(),
                                 label: '',
                                 amount: 0,
+                                due_date: '',
                                 paid: false
                             }],
                         });
@@ -46,6 +50,7 @@
                                 id: Date.now() + Math.random(),
                                 label: expense.label || '',
                                 amount: Number(expense.amount) || 0,
+                                due_date: expense.due_date || '',
                                 paid: expense.paid || false,
                             })),
                         };
@@ -58,12 +63,71 @@
                         this.showEditModal = false;
                         this.editingEntry = null;
                     },
+                    openViewModal(posted) {
+                        this.viewingEntry = posted;
+                        this.showViewModal = true;
+                    },
+                    closeViewModal() {
+                        this.showViewModal = false;
+                        this.viewingEntry = null;
+                        this.viewingExpenseSavingIndex = null;
+                    },
+                    async toggleViewExpensePaid(expenseIndex) {
+                        if (!this.viewingEntry || this.viewingExpenseSavingIndex !== null) {
+                            return;
+                        }
+                        const entry = this.viewingEntry;
+                        const target = entry.expenses[expenseIndex];
+                        if (!target) {
+                            return;
+                        }
+                        this.viewingExpenseSavingIndex = expenseIndex;
+                        const newPaid = !target.paid;
+                        const payload = {
+                            label: (entry.label || '').trim(),
+                            salary: Number(entry.salary) || 0,
+                            cash: Number(entry.cash) || 0,
+                            expenses: entry.expenses.map((e, i) => ({
+                                label: (e.label || '').trim(),
+                                amount: Number(e.amount) || 0,
+                                due_date: e.due_date || null,
+                                paid: i === expenseIndex ? newPaid : !!e.paid,
+                            })),
+                        };
+                        try {
+                            const response = await fetch(`/planner-entries/${entry.id}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                        'content'),
+                                    'Accept': 'application/json',
+                                },
+                                body: JSON.stringify(payload),
+                            });
+                            if (!response.ok) {
+                                const errorData = await response.json().catch(() => ({}));
+                                alert(errorData.message || 'Unable to update paid status.');
+                                return;
+                            }
+                            const data = await response.json();
+                            const listIndex = this.postedMonths.findIndex((item) => item.id === data.entry.id);
+                            if (listIndex !== -1) {
+                                this.postedMonths[listIndex] = data.entry;
+                            }
+                            this.viewingEntry = data.entry;
+                            this.refreshSummary();
+                        } finally {
+                            this.viewingExpenseSavingIndex = null;
+                        }
+                    },
                     addEditExpense() {
                         if (!this.editingEntry) return;
                         this.editingEntry.expenses.push({
                             id: Date.now() + Math.random(),
                             label: '',
                             amount: 0,
+                            due_date: '',
                             paid: false,
                         });
                     },
@@ -98,6 +162,7 @@
                             id: Date.now() + Math.random(),
                             label: '',
                             amount: 0,
+                            due_date: '',
                             paid: false,
                         });
                     },
@@ -120,6 +185,7 @@
                             expenses: month.expenses.map((expense) => ({
                                 label: (expense.label || '').trim(),
                                 amount: Number(expense.amount) || 0,
+                                due_date: expense.due_date || null,
                                 paid: expense.paid || false,
                             })),
                         };
@@ -241,6 +307,32 @@
 
                         return pages;
                     },
+                    totalExpensesFirstHalf(month = null) {
+                        let total = 0;
+                        const expenseList = month ? month.expenses : [];
+                        expenseList.forEach(expense => {
+                            if (expense.due_date) {
+                                const day = new Date(expense.due_date).getDate();
+                                if (day >= 1 && day <= 14) {
+                                    total += Number(expense.amount) || 0;
+                                }
+                            }
+                        });
+                        return total;
+                    },
+                    totalExpensesSecondHalf(month = null) {
+                        let total = 0;
+                        const expenseList = month ? month.expenses : [];
+                        expenseList.forEach(expense => {
+                            if (expense.due_date) {
+                                const day = new Date(expense.due_date).getDate();
+                                if (day >= 15 && day <= 31) {
+                                    total += Number(expense.amount) || 0;
+                                }
+                            }
+                        });
+                        return total;
+                    },
                     toggleExpanded(entryId) {
                         if (this.expandedEntries.has(entryId)) {
                             this.expandedEntries.delete(entryId);
@@ -263,6 +355,7 @@
                             expenses: this.editingEntry.expenses.map((expense) => ({
                                 label: (expense.label || '').trim(),
                                 amount: Number(expense.amount) || 0,
+                                due_date: expense.due_date || null,
                                 paid: expense.paid || false,
                             })),
                         };
@@ -306,6 +399,19 @@
                             style: 'currency',
                             currency: 'PHP',
                         }).format(Number(amount) || 0);
+                    },
+                    formatPlannerDateOnly(value) {
+                        if (!value) {
+                            return '—';
+                        }
+                        const d = new Date(value + (value.length === 10 ? 'T00:00:00' : ''));
+                        if (Number.isNaN(d.getTime())) {
+                            return String(value);
+                        }
+                        return d.toLocaleDateString('en-US', {
+                            timeZone: 'Asia/Manila',
+                            dateStyle: 'medium',
+                        });
                     },
                     refreshSummary() {
                         this.subtotalRemaining = this.postedMonths.reduce((sum, item) => sum + (Number(item.remaining) || 0),

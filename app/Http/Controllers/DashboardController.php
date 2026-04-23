@@ -19,6 +19,7 @@ class DashboardController extends Controller
             'remaining' => (float) $entry->remaining,
             'expenses' => $entry->expenses ?? [],
             'created_at' => $entry->created_at?->toDateTimeString(),
+            'updated_at' => $entry->updated_at?->toDateTimeString(),
         ];
     }
 
@@ -31,6 +32,7 @@ class DashboardController extends Controller
             'expenses' => 'required|array|min:1',
             'expenses.*.label' => 'nullable|string|max:255',
             'expenses.*.amount' => 'required|numeric',
+            'expenses.*.due_date' => 'nullable|date',
             'expenses.*.paid' => 'boolean',
         ]);
     }
@@ -60,6 +62,8 @@ class DashboardController extends Controller
             return [
                 'label' => trim((string) ($expense['label'] ?? '')),
                 'amount' => (float) ($expense['amount'] ?? 0),
+                'due_date' => $expense['due_date'] ?? null,
+                'paid' => (bool) ($expense['paid'] ?? false),
             ];
         })->values();
 
@@ -94,6 +98,8 @@ class DashboardController extends Controller
             return [
                 'label' => trim((string) ($expense['label'] ?? '')),
                 'amount' => (float) ($expense['amount'] ?? 0),
+                'due_date' => $expense['due_date'] ?? null,
+                'paid' => (bool) ($expense['paid'] ?? false),
             ];
         })->values();
 
