@@ -506,7 +506,7 @@
                             </div>
                             <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
                                 <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">2nd Half Total (Until 30th)</p>
-                                <p class="mt-1 text-xl font-bold text-emerald-600 dark:emerald-indigo-400"
+                                <p class="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400"
                                     x-text="formatCurrency(totalExpensesSecondHalf(editingEntry))"></p>
                             </div>
                         </div>
@@ -650,7 +650,7 @@
                                 </div>
                                 <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
                                     <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">2nd Half Total (Until 30th)</p>
-                                    <p class="mt-1 text-xl font-bold text-emerald-600 dark:emerald-indigo-400"
+                                    <p class="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400"
                                         x-text="formatCurrency(totalExpensesSecondHalf(viewingEntry))"></p>
                                 </div>
                             </div>
