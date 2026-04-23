@@ -1,4 +1,19 @@
 @push('scripts')
+        <style>
+            /* Keep toasts above modals, but don't block app clicks */
+            .notyf {
+                /* Put Notyf behind modal layers (z-40 / z-50) */
+                z-index: 30 !important;
+                pointer-events: none !important;
+            }
+
+            .notyf__toast,
+            .notyf__dismiss {
+                pointer-events: auto !important;
+            }
+        </style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             function monthlyPlannerApp() {
@@ -17,8 +32,113 @@
                     editingEntry: null,
                     viewingEntry: null,
                     viewingExpenseSavingIndex: null,
+                    notyf: null,
                     chart: null,
                     expandedEntries: new Set(),
+                    setupNotyf() {
+                        if (this.notyf) {
+                            return;
+                        }
+                        if (typeof Notyf === 'undefined') {
+                            return;
+                        }
+                        this.notyf = new Notyf({
+                            duration: 2000,
+                            position: {
+                                x: 'right',
+                                y: 'top',
+                            },
+                            dismissible: true,
+                            ripple: true,
+                            types: [{
+                                type: 'warning',
+                                background: '#f59e0b',
+                                icon: {
+                                    className: 'notyf__icon--warning',
+                                    tagName: 'span',
+                                    text: '!',
+                                },
+                            }],
+                        });
+                    },
+                    notifySuccess(message) {
+                        this.setupNotyf();
+                        if (this.notyf) {
+                            const n = this.notyf.open({
+                                type: 'success',
+                                message,
+                                duration: 2000,
+                            });
+                            // Hard-enforce close even if hover pauses timer
+                            setTimeout(() => {
+                                try {
+                                    // Some builds don't remove a single toast reliably, so dismiss all.
+                                    this.notyf.dismissAll();
+                                    // Last-resort: ensure DOM is cleared.
+                                    document.querySelectorAll('.notyf__toast').forEach((el) => el.remove());
+                                } catch (e) {}
+                            }, 2200);
+                            return;
+                        }
+                        console.log(message);
+                    },
+                    notifyError(message) {
+                        this.setupNotyf();
+                        if (this.notyf) {
+                            const n = this.notyf.open({
+                                type: 'error',
+                                message,
+                                duration: 2000,
+                            });
+                            setTimeout(() => {
+                                try {
+                                    this.notyf.dismissAll();
+                                    document.querySelectorAll('.notyf__toast').forEach((el) => el.remove());
+                                } catch (e) {}
+                            }, 2200);
+                            return;
+                        }
+                        console.error(message);
+                    },
+                    notifyWarning(message) {
+                        this.setupNotyf();
+                        if (this.notyf) {
+                            const n = this.notyf.open({
+                                type: 'warning',
+                                message,
+                                duration: 2000,
+                            });
+                            setTimeout(() => {
+                                try {
+                                    this.notyf.dismissAll();
+                                    document.querySelectorAll('.notyf__toast').forEach((el) => el.remove());
+                                } catch (e) {}
+                            }, 2200);
+                            return;
+                        }
+                        console.warn(message);
+                    },
+                    extractBackendErrorMessage(errorData, fallbackMessage) {
+                        if (!errorData) {
+                            return fallbackMessage;
+                        }
+                        if (typeof errorData === 'string') {
+                            return errorData;
+                        }
+                        if (errorData.message && typeof errorData.message === 'string' && errorData.message.trim()) {
+                            return errorData.message;
+                        }
+                        // Laravel validation errors usually look like { message: "...", errors: { field: ["msg"] } }
+                        if (errorData.errors && typeof errorData.errors === 'object') {
+                            const firstKey = Object.keys(errorData.errors)[0];
+                            const firstVal = firstKey ? errorData.errors[firstKey] : null;
+                            const firstMsg = Array.isArray(firstVal) ? firstVal[0] : firstVal;
+                            if (firstMsg) {
+                                return String(firstMsg);
+                            }
+                        }
+                        return fallbackMessage;
+                    },
                     addMonth() {
                         this.months.push({
                             id: Date.now() + Math.random(),
@@ -46,13 +166,22 @@
                             label: posted.label || '',
                             salary: Number(posted.salary) || 0,
                             cash: Number(posted.cash) || 0,
-                            expenses: (posted.expenses || []).map((expense) => ({
-                                id: Date.now() + Math.random(),
-                                label: expense.label || '',
-                                amount: Number(expense.amount) || 0,
-                                due_date: expense.due_date || '',
-                                paid: expense.paid || false,
-                            })),
+                            expenses: (posted.expenses || []).map((expense) => {
+                                let due = expense.due_date;
+                                if (due) {
+                                    const s = String(due);
+                                    due = s.length >= 10 ? s.slice(0, 10) : s;
+                                } else {
+                                    due = '';
+                                }
+                                return {
+                                    id: Date.now() + Math.random(),
+                                    label: expense.label || '',
+                                    amount: Number(expense.amount) || 0,
+                                    due_date: due,
+                                    paid: expense.paid || false,
+                                };
+                            }),
                         };
                         if (this.editingEntry.expenses.length === 0) {
                             this.addEditExpense();
@@ -107,7 +236,7 @@
                             });
                             if (!response.ok) {
                                 const errorData = await response.json().catch(() => ({}));
-                                alert(errorData.message || 'Unable to update paid status.');
+                                this.notifyError(this.extractBackendErrorMessage(errorData, 'Unable to update paid status.'));
                                 return;
                             }
                             const data = await response.json();
@@ -117,6 +246,7 @@
                             }
                             this.viewingEntry = data.entry;
                             this.refreshSummary();
+                            this.notifySuccess(data.message || (newPaid ? 'Expense marked as paid.' : 'Expense marked as unpaid.'));
                         } finally {
                             this.viewingExpenseSavingIndex = null;
                         }
@@ -174,7 +304,7 @@
                         const cleanLabel = (month.label || '').trim();
 
                         if (!cleanLabel) {
-                            alert('Please enter a month label.');
+                            this.notifyWarning('Please enter a month label.');
                             return;
                         }
 
@@ -203,7 +333,7 @@
 
                         if (!response.ok) {
                             const errorData = await response.json().catch(() => ({}));
-                            alert(errorData.message || 'Unable to save month note.');
+                            this.notifyError(this.extractBackendErrorMessage(errorData, 'Unable to save month note.'));
                             return;
                         }
 
@@ -214,6 +344,7 @@
                             this.showPlannerModal = false;
                         }
                         this.refreshSummary();
+                        this.notifySuccess(data.message || 'Monthly planner note saved.');
                     },
                     async deletePostedById(entryId) {
                         const item = this.postedMonths.find((entry) => entry.id === entryId);
@@ -230,13 +361,16 @@
                         });
 
                         if (!response.ok) {
-                            alert('Unable to delete posted note.');
+                            const errorData = await response.json().catch(() => ({}));
+                            this.notifyError(this.extractBackendErrorMessage(errorData, 'Unable to delete posted note.'));
                             return;
                         }
 
+                        const data = await response.json().catch(() => ({}));
                         this.postedMonths = this.postedMonths.filter((entry) => entry.id !== entryId);
                         this.currentPage = Math.max(1, Math.min(this.currentPage, this.getTotalPages()));
                         this.refreshSummary();
+                        this.notifySuccess(data.message || 'Monthly planner note deleted.');
                     },
                     filteredPostedMonths() {
                         const search = this.postedSearch.toLowerCase();
@@ -344,7 +478,7 @@
                         if (!this.editingEntry) return;
                         const cleanLabel = (this.editingEntry.label || '').trim();
                         if (!cleanLabel) {
-                            alert('Please enter a month label.');
+                            this.notifyWarning('Please enter a month label.');
                             return;
                         }
 
@@ -373,7 +507,7 @@
 
                         if (!response.ok) {
                             const errorData = await response.json().catch(() => ({}));
-                            alert(errorData.message || 'Unable to update posted note.');
+                            this.notifyError(this.extractBackendErrorMessage(errorData, 'Unable to update posted note.'));
                             return;
                         }
 
@@ -384,6 +518,7 @@
                         }
                         this.closeEditModal();
                         this.refreshSummary();
+                        this.notifySuccess(data.message || 'Monthly planner note updated.');
                     },
                     totalExpenses(month) {
                         return month.expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
@@ -485,6 +620,7 @@
                         });
                     },
                     init() {
+                        this.setupNotyf();
                         this.refreshSummary();
                     }
                 };

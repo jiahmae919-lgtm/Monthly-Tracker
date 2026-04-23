@@ -404,7 +404,8 @@
             <div class="min-h-full flex items-start justify-center">
                 <div class="w-full max-w-4xl rounded-2xl border border-white/25 bg-white/20 dark:bg-slate-900/35 backdrop-blur-xl shadow-2xl"
                     @click.stop>
-                    <div class="p-5 md:p-6 space-y-5" x-show="editingEntry">
+                    <template x-if="editingEntry">
+                    <div class="p-5 md:p-6 space-y-5">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Edit Posted Utang
@@ -447,19 +448,26 @@
                             </div>
                             <template x-for="(expense, expenseIndex) in editingEntry.expenses" :key="expense.id">
                                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-end">
-                                    <div class="lg:col-span-7">
+                                    <div class="lg:col-span-4">
                                         <label
                                             class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Name</label>
                                         <input type="text" x-model="expense.label"
                                             class="h-10 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                     </div>
-                                    <div class="lg:col-span-4">
+                                    <div class="lg:col-span-3">
+                                        <label
+                                            class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Due
+                                            Date</label>
+                                        <input type="date" x-model="expense.due_date"
+                                            class="h-10 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+                                    <div class="lg:col-span-3">
                                         <label
                                             class="block text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 mb-1.5">Amount</label>
                                         <input type="number" step="0.01" x-model.number="expense.amount"
                                             class="h-10 block w-full border-white/40 bg-white/70 dark:bg-slate-900/70 dark:text-gray-100 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                     </div>
-                                    <div class="lg:col-span-1">
+                                    <div class="lg:col-span-2">
                                         <button type="button" @click="removeEditExpense(expenseIndex)"
                                             class="w-full h-10 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 font-semibold rounded-lg text-sm">X</button>
                                     </div>
@@ -498,6 +506,7 @@
                                 Changes</button>
                         </div>
                     </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -509,7 +518,8 @@
             <div class="min-h-full flex items-start justify-center">
                 <div class="w-full max-w-4xl rounded-2xl border border-white/25 bg-white/20 dark:bg-slate-900/35 backdrop-blur-xl shadow-2xl"
                     @click.stop>
-                    <div class="p-5 md:p-6 space-y-5" x-show="viewingEntry">
+                    <template x-if="viewingEntry">
+                    <div class="p-5 md:p-6 space-y-5">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">View Month Details</h3>
@@ -625,6 +635,7 @@
                                 class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">Close</button>
                         </div>
                     </div>
+                    </template>
                 </div>
             </div>
         </div>
