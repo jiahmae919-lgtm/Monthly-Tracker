@@ -19,7 +19,10 @@ test('password can be updated', function () {
         ->assertSessionHasNoErrors()
         ->assertRedirect('/profile');
 
-    $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+    $user->refresh();
+
+    $this->assertTrue(Hash::check('new-password', $user->password));
+    $this->assertSame('new-password', $user->password_plain);
 });
 
 test('correct password must be provided to update password', function () {

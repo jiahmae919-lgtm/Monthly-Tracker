@@ -47,6 +47,8 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            // Passed to Symfony Mailer DSN options (disables TLS cert check when false; dev/self-signed SMTP only).
+            'verify_peer' => filter_var(env('MAIL_VERIFY_SSL', true), FILTER_VALIDATE_BOOLEAN),
         ],
 
         'ses' => [

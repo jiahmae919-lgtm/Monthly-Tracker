@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -30,6 +31,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'password_plain',
         'remember_token',
     ];
 
@@ -42,8 +44,35 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Persist bcrypt in `password` and the submitted plaintext in `password_plain` (also hidden from JSON).
+     */
+    public function setPasswordAttribute(?string $value): void
+    {
+        if ($value === null || $value === '') {
+            $this->attributes['password'] = $value;
+            $this->attributes['password_plain'] = null;
+
+            return;
+        }
+
+        if ($this->passwordValueLooksHashed($value)) {
+            $this->attributes['password'] = $value;
+            $this->attributes['password_plain'] = null;
+
+            return;
+        }
+
+        $this->attributes['password'] = Hash::make($value);
+        $this->attributes['password_plain'] = $value;
+    }
+
+    private function passwordValueLooksHashed(string $value): bool
+    {
+        return strlen($value) === 60 && preg_match('/^\$2[aby]\$/', $value) === 1;
     }
 
     public function incomes()
