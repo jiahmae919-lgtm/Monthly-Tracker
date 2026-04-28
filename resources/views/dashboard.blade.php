@@ -8,6 +8,17 @@
         </div>
     </x-slot>
 
+    <style>
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+
     <div class="py-10" x-data="monthlyPlannerApp()">
         <div class="max-w-[1800px] mx-auto sm:px-6 lg:px-8 space-y-8">
             <div class="flex justify-end">
@@ -49,17 +60,19 @@
                                     <span>Paid Expenses by Month</span>
                                 </h4>
                                 <span class="text-xs text-gray-500 dark:text-gray-400"
-                                    x-text="`${postedMonths.length} month(s)`"></span>
+                                    x-text="`${postedMonths.filter(posted => (posted.expenses || []).some(expense => expense.paid)).length} month(s)`"></span>
                             </div>
 
-                            <template x-if="postedMonths.length === 0">
+                            <template x-if="postedMonths.filter(posted => (posted.expenses || []).some(expense => expense.paid)).length === 0">
                                 <div class="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 p-4 text-sm text-gray-500 dark:text-gray-400">
-                                    No monthly records yet.
+                                    No paid expenses yet.
                                 </div>
                             </template>
 
-                            <div x-show="postedMonths.length > 0" class="space-y-4">
-                                <template x-for="posted in postedMonths" :key="`paid-expenses-${posted.id}`">
+                            <div x-show="postedMonths.filter(posted => (posted.expenses || []).some(expense => expense.paid)).length > 0"
+                                :class="postedMonths.filter(posted => (posted.expenses || []).some(expense => expense.paid)).length > 4 ? 'max-h-[34rem] overflow-y-auto pr-1 hide-scrollbar' : ''"
+                                class="space-y-4">
+                                <template x-for="posted in postedMonths.filter(posted => (posted.expenses || []).some(expense => expense.paid))" :key="`paid-expenses-${posted.id}`">
                                     <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 p-4">
                                         <div class="flex items-start justify-between gap-3">
                                             <button type="button" @click="toggleExpanded(`paid-${posted.id}`)"
@@ -95,11 +108,7 @@
                                         </div>
 
                                         <div x-show="expandedEntries.has(`paid-${posted.id}`)" class="mt-4 space-y-2">
-                                            <template x-if="(posted.expenses || []).filter(expense => expense.paid).length === 0">
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">No paid expenses yet.</p>
-                                            </template>
-
-                                            <div x-show="(posted.expenses || []).filter(expense => expense.paid).length > 0" class="space-y-2">
+                                            <div class="space-y-2">
                                                 <template x-for="(expense, expenseIndex) in (posted.expenses || []).filter(expense => expense.paid)"
                                                     :key="`${posted.id}-paid-${expense.id ?? expenseIndex}`">
                                                     <div class="flex items-center gap-3 rounded-lg bg-white/80 dark:bg-slate-800/60 px-3 py-2">
