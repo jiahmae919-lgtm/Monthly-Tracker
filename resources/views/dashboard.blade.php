@@ -114,8 +114,19 @@
                             </div>
                         </template>
 
-                        <div x-show="upcomingDueExpenses().length > 0" class="hide-scrollbar max-h-80 space-y-2 overflow-y-auto pr-1">
-                            <template x-for="(expense, expenseIndex) in upcomingDueExpenses().slice(0, 3)"
+                        <div
+                            x-show="upcomingDueExpenses().length > 0"
+                            x-data="{ page: 0, pageSize: 3 }"
+                            x-effect="
+                                (() => {
+                                    const totalPages = Math.max(1, Math.ceil(upcomingDueExpenses().length / pageSize));
+                                    page = Math.min(page, totalPages - 1);
+                                })()
+                            "
+                            class="space-y-3"
+                        >
+                            <template
+                                x-for="(expense, expenseIndex) in upcomingDueExpenses().slice(page * pageSize, (page + 1) * pageSize)"
                                 :key="`upcoming-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
                                 <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
                                     <div class="min-w-0">
@@ -137,6 +148,25 @@
                                     </div>
                                 </div>
                             </template>
+
+                            <div class="flex items-center justify-end gap-2 pt-1" x-show="upcomingDueExpenses().length > pageSize">
+                                <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
+                                    x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(upcomingDueExpenses().length / pageSize))}`"></span>
+
+                                <button type="button"
+                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    @click="page = Math.max(0, page - 1)"
+                                    :disabled="page === 0">
+                                    Prev
+                                </button>
+
+                                <button type="button"
+                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    @click="page = Math.min(Math.max(0, Math.ceil(upcomingDueExpenses().length / pageSize) - 1), page + 1)"
+                                    :disabled="page >= Math.ceil(upcomingDueExpenses().length / pageSize) - 1">
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -158,8 +188,19 @@
                             </div>
                         </template>
 
-                        <div x-show="overdueExpenses().length > 0" class="hide-scrollbar max-h-80 space-y-2 overflow-y-auto pr-1">
-                            <template x-for="(expense, expenseIndex) in overdueExpenses().slice(0, 3)"
+                        <div
+                            x-show="overdueExpenses().length > 0"
+                            x-data="{ page: 0, pageSize: 3 }"
+                            x-effect="
+                                (() => {
+                                    const totalPages = Math.max(1, Math.ceil(overdueExpenses().length / pageSize));
+                                    page = Math.min(page, totalPages - 1);
+                                })()
+                            "
+                            class="space-y-3"
+                        >
+                            <template
+                                x-for="(expense, expenseIndex) in overdueExpenses().slice(page * pageSize, (page + 1) * pageSize)"
                                 :key="`overdue-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
                                 <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
                                     <div class="min-w-0">
@@ -181,6 +222,25 @@
                                     </div>
                                 </div>
                             </template>
+
+                            <div class="flex items-center justify-end gap-2 pt-1" x-show="overdueExpenses().length > pageSize">
+                                <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
+                                    x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(overdueExpenses().length / pageSize))}`"></span>
+
+                                <button type="button"
+                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    @click="page = Math.max(0, page - 1)"
+                                    :disabled="page === 0">
+                                    Prev
+                                </button>
+
+                                <button type="button"
+                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                    @click="page = Math.min(Math.max(0, Math.ceil(overdueExpenses().length / pageSize) - 1), page + 1)"
+                                    :disabled="page >= Math.ceil(overdueExpenses().length / pageSize) - 1">
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
