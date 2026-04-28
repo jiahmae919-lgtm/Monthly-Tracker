@@ -56,4 +56,5 @@ CMD sh -c "php artisan package:discover --ansi && \
            php artisan route:cache && \
            php artisan view:cache && \
            php artisan migrate --force && \
+           php artisan schedule:work > /var/www/storage/logs/scheduler.log 2>&1 & \
            php artisan serve --host=0.0.0.0 --port=10000"

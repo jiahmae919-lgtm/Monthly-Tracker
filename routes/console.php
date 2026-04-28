@@ -9,6 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('expenses:send-due-reminders')
-    ->dailyAt('08:00')
+    ->dailyAt(env('DUE_REMINDER_AT', '08:00'))
     ->timezone(config('app.timezone'))
     ->withoutOverlapping();
