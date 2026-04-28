@@ -5,14 +5,22 @@
         @endphp
 
         <div x-data="{ showUserCard: false }" class="flex flex-col gap-5 px-1 py-2 lg:flex-row lg:items-center lg:justify-between">
-            <div class="min-w-0">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-300">CashFlow Dashboard</p>
-                <h2 class="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100">
-                    Welcome back, {{ auth()->user()->name }}
-                </h2>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Track your monthly balance, expenses, and due dates in one place.
-                </p>
+            <div class="flex min-w-0 items-start gap-4">
+                <img
+                    src="{{ asset('img/logo.png') }}"
+                    alt="Logo"
+                    class="h-16 w-16 shrink-0 rounded-full border border-slate-200 bg-white object-cover shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:h-20 sm:w-20"
+                />
+
+                <div class="min-w-0">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-300">Utang Dashboard</p>
+                    <h2 class="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100">
+                        Welcome back, {{ auth()->user()->name }}
+                    </h2>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        Track your monthly balance, expenses, and due dates in one place.
+                    </p>
+                </div>
             </div>
 
             <div class="relative self-start lg:self-auto" @click.outside="showUserCard = false">
@@ -104,7 +112,7 @@
                                 <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">UPCOMING DUE DATES</h3>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Unpaid expenses due within the next 30 days.</p>
                             </div>
-                            <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+                            <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
                                 x-text="`${upcomingDueExpenses().length} item(s)`"></span>
                         </div>
 
@@ -133,7 +141,7 @@
                                         <div class="flex items-center gap-2">
                                             <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
                                                 x-text="expense.label || 'Unnamed expense'"></p>
-                                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+                                            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                                                 Due Soon
                                             </span>
                                         </div>
@@ -141,7 +149,7 @@
                                             x-text="`${expense.monthLabel} • ${formatPlannerDateOnly(expense.due_date)}`"></p>
                                     </div>
                                     <div class="shrink-0 text-right">
-                                        <p class="text-sm font-semibold text-amber-600 dark:text-amber-300"
+                                        <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-300"
                                             x-text="formatCurrency(expense.amount)"></p>
                                         <p class="text-xs text-gray-500 dark:text-gray-400"
                                             x-text="formatDaysUntil(expense.due_date)"></p>
@@ -425,17 +433,17 @@
                                                 x-text="'Saved: ' + (posted.created_at ? new Date(posted.created_at).toLocaleDateString('en-US', {timeZone: 'Asia/Manila', dateStyle: 'medium'}) : '-')">
                                             </p>
                                         </div>
-                                        <div class="flex gap-2">
+                                        <div class="flex flex-wrap gap-2">
                                             <button type="button" @click="openViewModal(posted)"
-                                                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-3 rounded-lg text-xs">
+                                                class="inline-flex items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 focus:ring-offset-2 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20 dark:focus:ring-offset-gray-800">
                                                 View
                                             </button>
                                             <button type="button" @click="openEditModal(posted)"
-                                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1.5 px-3 rounded-lg text-xs">
+                                                class="inline-flex items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-sky-400/60 focus:ring-offset-2 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200 dark:hover:bg-sky-500/20 dark:focus:ring-offset-gray-800">
                                                 Edit
                                             </button>
                                             <button type="button" @click="deletePostedById(posted.id)"
-                                                class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-1.5 px-3 rounded-lg text-xs">
+                                                class="inline-flex items-center justify-center rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-400/60 focus:ring-offset-2 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 dark:focus:ring-offset-gray-800">
                                                 Delete
                                             </button>
                                         </div>
