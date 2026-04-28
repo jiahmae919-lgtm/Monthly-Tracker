@@ -114,8 +114,8 @@
                             </div>
                         </template>
 
-                        <div x-show="upcomingDueExpenses().length > 0" class="space-y-2">
-                            <template x-for="(expense, expenseIndex) in upcomingDueExpenses().slice(0, 4)"
+                        <div x-show="upcomingDueExpenses().length > 0" class="hide-scrollbar max-h-80 space-y-2 overflow-y-auto pr-1">
+                            <template x-for="(expense, expenseIndex) in upcomingDueExpenses().slice(0, 3)"
                                 :key="`upcoming-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
                                 <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
                                     <div class="min-w-0">
@@ -158,8 +158,8 @@
                             </div>
                         </template>
 
-                        <div x-show="overdueExpenses().length > 0" class="space-y-2">
-                            <template x-for="(expense, expenseIndex) in overdueExpenses().slice(0, 4)"
+                        <div x-show="overdueExpenses().length > 0" class="hide-scrollbar max-h-80 space-y-2 overflow-y-auto pr-1">
+                            <template x-for="(expense, expenseIndex) in overdueExpenses().slice(0, 3)"
                                 :key="`overdue-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
                                 <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
                                     <div class="min-w-0">
