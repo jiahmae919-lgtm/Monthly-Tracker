@@ -533,6 +533,100 @@
                     totalExpenses(month) {
                         return month.expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
                     },
+                    totalPaidExpenses(month) {
+                        return (month?.expenses || []).reduce((sum, expense) => {
+                            if (!expense.paid) {
+                                return sum;
+                            }
+                            return sum + (Number(expense.amount) || 0);
+                        }, 0);
+                    },
+                    upcomingDueExpenses() {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const upcoming = [];
+
+                        (this.postedMonths || []).forEach((month) => {
+                            (month.expenses || []).forEach((expense, expenseIndex) => {
+                                if (expense.paid || !expense.due_date) {
+                                    return;
+                                }
+
+                                const dueDate = new Date(`${expense.due_date}T00:00:00`);
+                                if (Number.isNaN(dueDate.getTime())) {
+                                    return;
+                                }
+
+                                dueDate.setHours(0, 0, 0, 0);
+                                const diffInDays = Math.round((dueDate - today) / 86400000);
+
+                                if (diffInDays < 0 || diffInDays > 30) {
+                                    return;
+                                }
+
+                                upcoming.push({
+                                    monthId: month.id,
+                                    expenseId: expense.id ?? expenseIndex,
+                                    monthLabel: `${month.label || 'Month'}${month.year ? ' ' + month.year : ''}`.trim(),
+                                    label: expense.label || '',
+                                    amount: Number(expense.amount) || 0,
+                                    due_date: expense.due_date,
+                                    diffInDays,
+                                });
+                            });
+                        });
+
+                        return upcoming.sort((a, b) => {
+                            if (a.diffInDays !== b.diffInDays) {
+                                return a.diffInDays - b.diffInDays;
+                            }
+                            return a.amount - b.amount;
+                        });
+                    },
+                    overdueExpenses() {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const overdue = [];
+
+                        (this.postedMonths || []).forEach((month) => {
+                            (month.expenses || []).forEach((expense, expenseIndex) => {
+                                if (expense.paid || !expense.due_date) {
+                                    return;
+                                }
+
+                                const dueDate = new Date(`${expense.due_date}T00:00:00`);
+                                if (Number.isNaN(dueDate.getTime())) {
+                                    return;
+                                }
+
+                                dueDate.setHours(0, 0, 0, 0);
+                                const diffInDays = Math.round((dueDate - today) / 86400000);
+
+                                if (diffInDays >= 0) {
+                                    return;
+                                }
+
+                                overdue.push({
+                                    monthId: month.id,
+                                    expenseId: expense.id ?? expenseIndex,
+                                    monthLabel: `${month.label || 'Month'}${month.year ? ' ' + month.year : ''}`.trim(),
+                                    label: expense.label || '',
+                                    amount: Number(expense.amount) || 0,
+                                    due_date: expense.due_date,
+                                    diffInDays,
+                                });
+                            });
+                        });
+
+                        return overdue.sort((a, b) => {
+                            if (a.diffInDays !== b.diffInDays) {
+                                return a.diffInDays - b.diffInDays;
+                            }
+                            return b.amount - a.amount;
+                        });
+                    },
                     totalCash(month) {
                         return (Number(month.cash) || 0) + (Number(month.salary) || 0);
                     },
@@ -557,6 +651,97 @@
                             timeZone: 'Asia/Manila',
                             dateStyle: 'medium',
                         });
+                    },
+                    formatDaysUntil(value) {
+                        if (!value) {
+                            return 'No due date';
+                        }
+
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const dueDate = new Date(`${value}T00:00:00`);
+                        if (Number.isNaN(dueDate.getTime())) {
+                            return 'Invalid due date';
+                        }
+
+                        dueDate.setHours(0, 0, 0, 0);
+                        const diffInDays = Math.round((dueDate - today) / 86400000);
+
+                        if (diffInDays === 0) {
+                            return 'Due today';
+                        }
+                        if (diffInDays === 1) {
+                            return 'Due in 1 day';
+                        }
+                        return `Due in ${diffInDays} days`;
+                    },
+                    formatOverdueText(value) {
+                        if (!value) {
+                            return 'No due date';
+                        }
+
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const dueDate = new Date(`${value}T00:00:00`);
+                        if (Number.isNaN(dueDate.getTime())) {
+                            return 'Invalid due date';
+                        }
+
+                        dueDate.setHours(0, 0, 0, 0);
+                        const diffInDays = Math.round((today - dueDate) / 86400000);
+
+                        if (diffInDays === 1) {
+                            return '1 day overdue';
+                        }
+                        return `${diffInDays} days overdue`;
+                    },
+                    expenseStatusLabel(expense) {
+                        if (!expense) {
+                            return 'Unknown';
+                        }
+                        if (expense.paid) {
+                            return 'Paid';
+                        }
+                        if (!expense.due_date) {
+                            return 'No Due Date';
+                        }
+
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const dueDate = new Date(`${expense.due_date}T00:00:00`);
+                        if (Number.isNaN(dueDate.getTime())) {
+                            return 'Invalid Date';
+                        }
+
+                        dueDate.setHours(0, 0, 0, 0);
+                        const diffInDays = Math.round((dueDate - today) / 86400000);
+
+                        if (diffInDays < 0) {
+                            return 'Overdue';
+                        }
+                        if (diffInDays <= 7) {
+                            return 'Due Soon';
+                        }
+                        return 'Upcoming';
+                    },
+                    expenseStatusClasses(expense) {
+                        const label = this.expenseStatusLabel(expense);
+
+                        if (label === 'Paid') {
+                            return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300';
+                        }
+                        if (label === 'Overdue') {
+                            return 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300';
+                        }
+                        if (label === 'Due Soon') {
+                            return 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300';
+                        }
+                        if (label === 'Upcoming') {
+                            return 'bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300';
+                        }
+                        return 'bg-gray-100 text-gray-700 dark:bg-gray-700/60 dark:text-gray-300';
                     },
                     refreshSummary() {
                         this.subtotalRemaining = this.postedMonths.reduce((sum, item) => sum + (Number(item.remaining) || 0),

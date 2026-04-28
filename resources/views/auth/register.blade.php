@@ -22,6 +22,19 @@
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
 
+            <!-- Gender -->
+            <div>
+                <x-input-label for="gender" :value="__('Gender')" />
+                <select id="gender" name="gender"
+                    class="block mt-1 w-full h-11 rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    required>
+                    <option value="">Select gender</option>
+                    <option value="male" @selected(old('gender') === 'male')>Male</option>
+                    <option value="female" @selected(old('gender') === 'female')>Female</option>
+                </select>
+                <x-input-error :messages="$errors->get('gender')" class="mt-2" />
+            </div>
+
             <!-- Password -->
             <div>
                 <x-input-label for="password" :value="__('Password')" />
