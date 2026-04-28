@@ -104,150 +104,150 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl">
-                    <div class="p-5 space-y-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">UPCOMING DUE DATES</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Unpaid expenses due within the next 30 days.</p>
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl">
+                <div class="p-5">
+                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+                        <div class="space-y-4 md:pr-6 md:border-r md:border-slate-200/70 dark:md:border-slate-700/60">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">UPCOMING DUE DATES</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Unpaid expenses due within the next 30 days.</p>
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                                    x-text="`${upcomingDueExpenses().length} item(s)`"></span>
                             </div>
-                            <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                                x-text="`${upcomingDueExpenses().length} item(s)`"></span>
-                        </div>
 
-                        <template x-if="upcomingDueExpenses().length === 0">
-                            <div class="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 p-3 text-sm text-gray-500 dark:text-gray-400">
-                                No upcoming unpaid expenses.
-                            </div>
-                        </template>
-
-                        <div
-                            x-show="upcomingDueExpenses().length > 0"
-                            x-data="{ page: 0, pageSize: 3 }"
-                            x-effect="
-                                (() => {
-                                    const totalPages = Math.max(1, Math.ceil(upcomingDueExpenses().length / pageSize));
-                                    page = Math.min(page, totalPages - 1);
-                                })()
-                            "
-                            class="space-y-3"
-                        >
-                            <template
-                                x-for="(expense, expenseIndex) in upcomingDueExpenses().slice(page * pageSize, (page + 1) * pageSize)"
-                                :key="`upcoming-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
-                                <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-2">
-                                            <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
-                                                x-text="expense.label || 'Unnamed expense'"></p>
-                                            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
-                                                Due Soon
-                                            </span>
-                                        </div>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400"
-                                            x-text="`${expense.monthLabel} • ${formatPlannerDateOnly(expense.due_date)}`"></p>
-                                    </div>
-                                    <div class="shrink-0 text-right">
-                                        <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-300"
-                                            x-text="formatCurrency(expense.amount)"></p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400"
-                                            x-text="formatDaysUntil(expense.due_date)"></p>
-                                    </div>
+                            <template x-if="upcomingDueExpenses().length === 0">
+                                <div class="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 p-3 text-sm text-gray-500 dark:text-gray-400">
+                                    No upcoming unpaid expenses.
                                 </div>
                             </template>
 
-                            <div class="flex items-center justify-end gap-2 pt-1" x-show="upcomingDueExpenses().length > pageSize">
-                                <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
-                                    x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(upcomingDueExpenses().length / pageSize))}`"></span>
-
-                                <button type="button"
-                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-                                    @click="page = Math.max(0, page - 1)"
-                                    :disabled="page === 0">
-                                    Prev
-                                </button>
-
-                                <button type="button"
-                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-                                    @click="page = Math.min(Math.max(0, Math.ceil(upcomingDueExpenses().length / pageSize) - 1), page + 1)"
-                                    :disabled="page >= Math.ceil(upcomingDueExpenses().length / pageSize) - 1">
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl">
-                    <div class="p-5 space-y-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">OVERDUE EXPENSES</h3>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Unpaid expenses past their due date.</p>
-                            </div>
-                            <span class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
-                                x-text="`${overdueExpenses().length} item(s)`"></span>
-                        </div>
-
-                        <template x-if="overdueExpenses().length === 0">
-                            <div class="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 p-3 text-sm text-gray-500 dark:text-gray-400">
-                                No overdue expenses.
-                            </div>
-                        </template>
-
-                        <div
-                            x-show="overdueExpenses().length > 0"
-                            x-data="{ page: 0, pageSize: 3 }"
-                            x-effect="
-                                (() => {
-                                    const totalPages = Math.max(1, Math.ceil(overdueExpenses().length / pageSize));
-                                    page = Math.min(page, totalPages - 1);
-                                })()
-                            "
-                            class="space-y-3"
-                        >
-                            <template
-                                x-for="(expense, expenseIndex) in overdueExpenses().slice(page * pageSize, (page + 1) * pageSize)"
-                                :key="`overdue-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
-                                <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-2">
-                                            <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
-                                                x-text="expense.label || 'Unnamed expense'"></p>
-                                            <span class="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
-                                                Overdue
-                                            </span>
+                            <div
+                                x-show="upcomingDueExpenses().length > 0"
+                                x-data="{ page: 0, pageSize: 3 }"
+                                x-effect="
+                                    (() => {
+                                        const totalPages = Math.max(1, Math.ceil(upcomingDueExpenses().length / pageSize));
+                                        page = Math.min(page, totalPages - 1);
+                                    })()
+                                "
+                                class="space-y-3"
+                            >
+                                <template
+                                    x-for="(expense, expenseIndex) in upcomingDueExpenses().slice(page * pageSize, (page + 1) * pageSize)"
+                                    :key="`upcoming-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
+                                    <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
+                                                    x-text="expense.label || 'Unnamed expense'"></p>
+                                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                                    Due Soon
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400"
+                                                x-text="`${expense.monthLabel} • ${formatPlannerDateOnly(expense.due_date)}`"></p>
                                         </div>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400"
-                                            x-text="`${expense.monthLabel} • ${formatPlannerDateOnly(expense.due_date)}`"></p>
+                                        <div class="shrink-0 text-right">
+                                            <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-300"
+                                                x-text="formatCurrency(expense.amount)"></p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400"
+                                                x-text="formatDaysUntil(expense.due_date)"></p>
+                                        </div>
                                     </div>
-                                    <div class="shrink-0 text-right">
-                                        <p class="text-sm font-semibold text-rose-600 dark:text-rose-300"
-                                            x-text="formatCurrency(expense.amount)"></p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400"
-                                            x-text="formatOverdueText(expense.due_date)"></p>
-                                    </div>
+                                </template>
+
+                                <div class="flex items-center justify-end gap-2 pt-1" x-show="upcomingDueExpenses().length > pageSize">
+                                    <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
+                                        x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(upcomingDueExpenses().length / pageSize))}`"></span>
+
+                                    <button type="button"
+                                        class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        @click="page = Math.max(0, page - 1)"
+                                        :disabled="page === 0">
+                                        Prev
+                                    </button>
+
+                                    <button type="button"
+                                        class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        @click="page = Math.min(Math.max(0, Math.ceil(upcomingDueExpenses().length / pageSize) - 1), page + 1)"
+                                        :disabled="page >= Math.ceil(upcomingDueExpenses().length / pageSize) - 1">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">OVERDUE EXPENSES</h3>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Unpaid expenses past their due date.</p>
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
+                                    x-text="`${overdueExpenses().length} item(s)`"></span>
+                            </div>
+
+                            <template x-if="overdueExpenses().length === 0">
+                                <div class="rounded-xl border border-dashed border-gray-300 dark:border-gray-700 p-3 text-sm text-gray-500 dark:text-gray-400">
+                                    No overdue expenses.
                                 </div>
                             </template>
 
-                            <div class="flex items-center justify-end gap-2 pt-1" x-show="overdueExpenses().length > pageSize">
-                                <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
-                                    x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(overdueExpenses().length / pageSize))}`"></span>
+                            <div
+                                x-show="overdueExpenses().length > 0"
+                                x-data="{ page: 0, pageSize: 3 }"
+                                x-effect="
+                                    (() => {
+                                        const totalPages = Math.max(1, Math.ceil(overdueExpenses().length / pageSize));
+                                        page = Math.min(page, totalPages - 1);
+                                    })()
+                                "
+                                class="space-y-3"
+                            >
+                                <template
+                                    x-for="(expense, expenseIndex) in overdueExpenses().slice(page * pageSize, (page + 1) * pageSize)"
+                                    :key="`overdue-top-${expense.monthId}-${expense.expenseId ?? expenseIndex}`">
+                                    <div class="flex items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-slate-50/70 dark:bg-slate-900/35 px-3 py-2.5">
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
+                                                    x-text="expense.label || 'Unnamed expense'"></p>
+                                                <span class="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+                                                    Overdue
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400"
+                                                x-text="`${expense.monthLabel} • ${formatPlannerDateOnly(expense.due_date)}`"></p>
+                                        </div>
+                                        <div class="shrink-0 text-right">
+                                            <p class="text-sm font-semibold text-rose-600 dark:text-rose-300"
+                                                x-text="formatCurrency(expense.amount)"></p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400"
+                                                x-text="formatOverdueText(expense.due_date)"></p>
+                                        </div>
+                                    </div>
+                                </template>
 
-                                <button type="button"
-                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-                                    @click="page = Math.max(0, page - 1)"
-                                    :disabled="page === 0">
-                                    Prev
-                                </button>
+                                <div class="flex items-center justify-end gap-2 pt-1" x-show="overdueExpenses().length > pageSize">
+                                    <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
+                                        x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(overdueExpenses().length / pageSize))}`"></span>
 
-                                <button type="button"
-                                    class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-                                    @click="page = Math.min(Math.max(0, Math.ceil(overdueExpenses().length / pageSize) - 1), page + 1)"
-                                    :disabled="page >= Math.ceil(overdueExpenses().length / pageSize) - 1">
-                                    Next
-                                </button>
+                                    <button type="button"
+                                        class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        @click="page = Math.max(0, page - 1)"
+                                        :disabled="page === 0">
+                                        Prev
+                                    </button>
+
+                                    <button type="button"
+                                        class="inline-flex h-8 items-center justify-center rounded-md border border-gray-300 px-2.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        @click="page = Math.min(Math.max(0, Math.ceil(overdueExpenses().length / pageSize) - 1), page + 1)"
+                                        :disabled="page >= Math.ceil(overdueExpenses().length / pageSize) - 1">
+                                        Next
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
