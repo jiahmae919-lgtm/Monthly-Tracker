@@ -113,7 +113,7 @@
                                     <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">UPCOMING DUE DATES</h3>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Unpaid expenses due within the next 30 days.</p>
                                 </div>
-                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
+                                <span class="hidden sm:inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
                                     x-text="`${upcomingDueExpenses().length} item(s)`"></span>
                             </div>
 
@@ -142,7 +142,7 @@
                                             <div class="flex items-center gap-2">
                                                 <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
                                                     x-text="expense.label || 'Unnamed expense'"></p>
-                                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                                <span class="hidden sm:inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
                                                     Due Soon
                                                 </span>
                                             </div>
@@ -159,7 +159,7 @@
                                 </template>
 
                                 <div class="flex items-center justify-end gap-2 pt-1" x-show="upcomingDueExpenses().length > pageSize">
-                                    <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
+                                    <span class="hidden sm:inline mr-auto text-xs text-gray-500 dark:text-gray-400"
                                         x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(upcomingDueExpenses().length / pageSize))}`"></span>
 
                                     <button type="button"
@@ -185,7 +185,7 @@
                                     <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">OVERDUE EXPENSES</h3>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">Unpaid expenses past their due date.</p>
                                 </div>
-                                <span class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
+                                <span class="hidden sm:inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
                                     x-text="`${overdueExpenses().length} item(s)`"></span>
                             </div>
 
@@ -214,7 +214,7 @@
                                             <div class="flex items-center gap-2">
                                                 <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
                                                     x-text="expense.label || 'Unnamed expense'"></p>
-                                                <span class="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+                                                <span class="hidden sm:inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
                                                     Overdue
                                                 </span>
                                             </div>
@@ -231,7 +231,7 @@
                                 </template>
 
                                 <div class="flex items-center justify-end gap-2 pt-1" x-show="overdueExpenses().length > pageSize">
-                                    <span class="mr-auto text-xs text-gray-500 dark:text-gray-400"
+                                    <span class="hidden sm:inline mr-auto text-xs text-gray-500 dark:text-gray-400"
                                         x-text="`Page ${page + 1} of ${Math.max(1, Math.ceil(overdueExpenses().length / pageSize))}`"></span>
 
                                     <button type="button"
@@ -261,7 +261,7 @@
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">MONTHLY BALANCE
                                 OVERVIEW</h3>
                             <div class="text-right">
-                                <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total
+                                <p class="hidden sm:block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total
                                     balance across all months</p>
                                 <p class="text-xl font-bold"
                                     :class="subtotalRemaining >= 0 ? 'text-emerald-600 dark:text-emerald-400' :
@@ -285,7 +285,7 @@
                                     </span>
                                     <span>Paid Expenses by Month</span>
                                 </h4>
-                                <span class="text-xs text-gray-500 dark:text-gray-400"
+                                <span class="hidden sm:inline text-xs text-gray-500 dark:text-gray-400"
                                     x-text="`${postedMonths.filter(posted => (posted.expenses || []).some(expense => expense.paid)).length} month(s)`"></span>
                             </div>
 
@@ -375,7 +375,7 @@
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">MONTHLY DEBT TRACKER
                             </h3>
-                            <span class="text-sm text-gray-500 dark:text-gray-400"
+                            <span class="hidden sm:inline text-sm text-gray-500 dark:text-gray-400"
                                 x-text="`${filteredPostedMonths().length} result(s)`"></span>
                         </div>
 
@@ -424,6 +424,7 @@
                         <div class="space-y-4">
                             <template x-for="posted in getPaginatedResults()" :key="posted.id">
                                 <div
+                                    x-data="{ showActions: false }"
                                     class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 transition-all hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-600">
                                     <div class="flex items-start justify-between gap-3">
                                         <div>
@@ -433,7 +434,34 @@
                                                 x-text="'Saved: ' + (posted.created_at ? new Date(posted.created_at).toLocaleDateString('en-US', {timeZone: 'Asia/Manila', dateStyle: 'medium'}) : '-')">
                                             </p>
                                         </div>
-                                        <div class="flex flex-wrap gap-2">
+                                        <div class="relative" @click.outside="showActions = false">
+                                            <button type="button" @click="showActions = !showActions"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800 md:hidden"
+                                                aria-label="Open actions">
+                                                <svg class="h-4 w-4 transition-transform" :class="showActions ? 'rotate-180' : ''"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </button>
+
+                                            <div x-cloak x-show="showActions" x-transition
+                                                class="absolute right-0 z-20 mt-2 w-40 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800 md:hidden">
+                                                <button type="button" @click="openViewModal(posted); showActions = false"
+                                                    class="mb-1 inline-flex w-full items-center justify-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20">
+                                                    View
+                                                </button>
+                                                <button type="button" @click="openEditModal(posted); showActions = false"
+                                                    class="mb-1 inline-flex w-full items-center justify-center rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200 dark:hover:bg-sky-500/20">
+                                                    Edit
+                                                </button>
+                                                <button type="button" @click="deletePostedById(posted.id); showActions = false"
+                                                    class="inline-flex w-full items-center justify-center rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="hidden flex-wrap gap-2 md:flex">
                                             <button type="button" @click="openViewModal(posted)"
                                                 class="inline-flex items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 focus:ring-offset-2 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20 dark:focus:ring-offset-gray-800">
                                                 View
@@ -448,28 +476,28 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mt-4 text-sm">
-                                        <div class="p-3 rounded bg-gray-50 dark:bg-gray-700/70">
+                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4 text-sm">
+                                        <div class="hidden md:block p-3 rounded bg-gray-50 dark:bg-gray-700/70">
                                             <p class="text-xs text-gray-500 dark:text-gray-400">Sahod</p>
                                             <p class="font-semibold text-gray-900 dark:text-gray-100"
                                                 x-text="formatCurrency(posted.salary)"></p>
                                         </div>
-                                        <div class="p-3 rounded bg-gray-50 dark:bg-gray-700/70">
+                                        <div class="hidden md:block p-3 rounded bg-gray-50 dark:bg-gray-700/70">
                                             <p class="text-xs text-gray-500 dark:text-gray-400">Cash</p>
                                             <p class="font-semibold text-gray-900 dark:text-gray-100"
                                                 x-text="formatCurrency(posted.cash)"></p>
                                         </div>
-                                        <div class="p-3 rounded bg-gray-50 dark:bg-gray-700/70">
+                                        <div class="hidden md:block p-3 rounded bg-gray-50 dark:bg-gray-700/70">
                                             <p class="text-xs text-gray-500 dark:text-gray-400">Total Cash</p>
                                             <p class="font-semibold text-gray-900 dark:text-gray-100"
                                                 x-text="formatCurrency(posted.total_cash)"></p>
                                         </div>
-                                        <div class="p-3 rounded bg-gray-50 dark:bg-gray-700/70">
+                                        <div class="col-span-2 md:col-span-1 p-3 rounded bg-gray-50 dark:bg-gray-700/70">
                                             <p class="text-xs text-gray-500 dark:text-gray-400">Total Expenses</p>
                                             <p class="font-semibold text-rose-600 dark:text-rose-400"
                                                 x-text="formatCurrency(posted.total_expenses)"></p>
                                         </div>
-                                        <div class="p-3 rounded bg-gray-50 dark:bg-gray-700/70">
+                                        <div class="col-span-2 md:col-span-1 p-3 rounded bg-gray-50 dark:bg-gray-700/70">
                                             <p class="text-xs text-gray-500 dark:text-gray-400">Balance</p>
                                             <p class="font-semibold"
                                                 :class="posted.remaining >= 0 ? 'text-emerald-600 dark:text-emerald-400' :
