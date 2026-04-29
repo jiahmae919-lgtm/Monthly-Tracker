@@ -998,7 +998,7 @@
 
                             <div class="border-t border-white/30 dark:border-gray-700/50 my-4"></div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                                 <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
                                     <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Total Expenses</p>
                                     <p class="mt-1 text-xl font-bold text-rose-600 dark:text-rose-400"
@@ -1008,6 +1008,12 @@
                                     <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Total Cash (saved)</p>
                                     <p class="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100"
                                         x-text="formatCurrency(viewingEntry?.total_cash)"></p>
+                                </div>
+                                <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
+                                    <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Paid Remaining Balance</p>
+                                    <p class="mt-1 text-xl font-bold"
+                                        :class="(Number(viewingEntry?.total_cash) || 0) - Number(totalPaidExpenses(viewingEntry) || 0) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
+                                        x-text="formatCurrency((Number(viewingEntry?.total_cash) || 0) - Number(totalPaidExpenses(viewingEntry) || 0))"></p>
                                 </div>
                                 <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
                                     <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Balance</p>
