@@ -1010,13 +1010,13 @@
                                         x-text="formatCurrency(viewingEntry?.total_cash)"></p>
                                 </div>
                                 <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
-                                    <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Paid Remaining Balance</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Current Balance</p>
                                     <p class="mt-1 text-xl font-bold"
                                         :class="(Number(viewingEntry?.total_cash) || 0) - Number(totalPaidExpenses(viewingEntry) || 0) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
                                         x-text="formatCurrency((Number(viewingEntry?.total_cash) || 0) - Number(totalPaidExpenses(viewingEntry) || 0))"></p>
                                 </div>
                                 <div class="p-4 rounded-lg bg-white/60 dark:bg-slate-900/55">
-                                    <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Balance</p>
+                                    <p class="text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300">Overall Balance</p>
                                     <p class="mt-1 text-xl font-bold"
                                         :class="Number(viewingEntry?.remaining) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
                                         x-text="formatCurrency(viewingEntry?.remaining)"></p>
