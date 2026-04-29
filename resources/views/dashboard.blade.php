@@ -4,12 +4,12 @@
             $avatarPath = auth()->user()->gender === 'female' ? asset('img/female.png') : asset('img/male.png');
         @endphp
 
-        <div x-data="{ showUserCard: false }" class="flex flex-col gap-5 px-1 py-2 lg:flex-row lg:items-center lg:justify-between">
+        <div x-data="{ showUserCard: false }" class="flex items-start justify-between gap-4 px-1 py-2 lg:items-center">
             <div class="flex min-w-0 items-start gap-4">
                 <img
                     src="{{ asset('img/logo.png') }}"
                     alt="Logo"
-                    class="h-16 w-16 shrink-0 rounded-full border border-slate-200 bg-white object-cover shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:h-20 sm:w-20"
+                    class="h-14 w-14 shrink-0 rounded-full border border-slate-200 bg-white p-1 object-contain shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:h-20 sm:w-20"
                 />
 
                 <div class="min-w-0">
@@ -25,14 +25,14 @@
 
             <div class="relative self-start lg:self-auto" @click.outside="showUserCard = false">
                 <button type="button" @click="showUserCard = !showUserCard"
-                    class="inline-flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/70 px-4 py-3 shadow-sm transition hover:bg-white dark:border-slate-700/70 dark:bg-slate-900/45 dark:hover:bg-slate-900/70">
+                    class="inline-flex items-center gap-3 rounded-full border border-slate-200/70 bg-white/70 p-1.5 shadow-sm transition hover:bg-white dark:border-slate-700/70 dark:bg-slate-900/45 dark:hover:bg-slate-900/70 sm:rounded-2xl sm:px-4 sm:py-3">
                     <img src="{{ $avatarPath }}" alt="Profile avatar"
                         class="h-12 w-12 shrink-0 rounded-full border-2 border-indigo-500 object-cover dark:border-indigo-400">
-                    <div class="min-w-0 text-right">
+                    <div class="hidden min-w-0 text-right sm:block">
                         <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Profile</p>
                         <p class="text-xs text-slate-500 dark:text-slate-400">Account menu</p>
                     </div>
-                    <svg class="h-4 w-4 text-slate-400 transition-transform" :class="showUserCard ? 'rotate-180' : ''"
+                    <svg class="hidden h-4 w-4 text-slate-400 transition-transform sm:block" :class="showUserCard ? 'rotate-180' : ''"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                     </svg>
@@ -99,7 +99,7 @@
         <div class="max-w-[1800px] mx-auto sm:px-6 lg:px-8 space-y-8">
             <div class="flex justify-end">
                 <button type="button" @click="openPlannerModal()"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm shadow-sm">
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg text-sm shadow-sm">
                     + Add Monthly Plan
                 </button>
             </div>
@@ -569,7 +569,7 @@
 
                         <div class="flex justify-end">
                             <button type="button" @click="addMonth()"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">
                                 + Add Month
                             </button>
                         </div>

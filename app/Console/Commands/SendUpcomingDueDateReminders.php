@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\UpcomingDueDateReminder;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class SendUpcomingDueDateReminders extends Command
 {
@@ -96,6 +97,11 @@ class SendUpcomingDueDateReminders extends Command
             });
 
         $this->info("Done. Notified {$notifiedUsers} user(s) about {$totalItems} due item(s).");
+
+        Cache::forever('expenses_due_reminders:last_run_at', now()->toIso8601String());
+        Cache::forever('expenses_due_reminders:last_target_date', $targetDateString);
+        Cache::forever('expenses_due_reminders:last_notified_users', $notifiedUsers);
+        Cache::forever('expenses_due_reminders:last_total_items', $totalItems);
 
         return self::SUCCESS;
     }
