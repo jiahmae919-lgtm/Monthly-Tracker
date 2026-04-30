@@ -21,6 +21,8 @@
                     showPlannerModal: false,
                     showEditModal: false,
                     showViewModal: false,
+                    showDueModal: false,
+                    dueModalType: 'upcoming',
                     months: [],
                     postedMonths: @json($plannerEntries),
                     postedSearch: '',
@@ -541,6 +543,39 @@
                             return sum + (Number(expense.amount) || 0);
                         }, 0);
                     },
+                    paidExpenses() {
+                        const paid = [];
+
+                        (this.postedMonths || []).forEach((month) => {
+                            (month.expenses || []).forEach((expense, expenseIndex) => {
+                                if (!expense.paid) {
+                                    return;
+                                }
+
+                                const dueStr = expense.due_date ? String(expense.due_date) : '';
+                                const dueDate = dueStr ? new Date(dueStr.length === 10 ? `${dueStr}T00:00:00` : dueStr) : null;
+                                const dueTime = dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate.getTime() : Infinity;
+
+                                paid.push({
+                                    monthId: month.id,
+                                    expenseId: expense.id ?? expenseIndex,
+                                    monthLabel: `${month.label || 'Month'}${month.year ? ' ' + month.year : ''}`.trim(),
+                                    label: expense.label || '',
+                                    amount: Number(expense.amount) || 0,
+                                    due_date: expense.due_date || null,
+                                    dueTime,
+                                    paid: true,
+                                });
+                            });
+                        });
+
+                        return paid.sort((a, b) => {
+                            if (a.dueTime !== b.dueTime) {
+                                return a.dueTime - b.dueTime;
+                            }
+                            return b.amount - a.amount;
+                        });
+                    },
                     upcomingDueExpenses() {
                         const today = new Date();
                         today.setHours(0, 0, 0, 0);
@@ -750,113 +785,167 @@
                     },
                     renderRemainingChart() {
                         const canvas = document.getElementById('monthlyRemainingChart');
-                        if (!canvas) {
-                            return;
-                        }
+                        if (!canvas) return;
 
                         const ctx = canvas.getContext('2d');
-                        const labels = this.postedMonths.map((item) => `${item.label} ${item.year || ''}`.trim());
+                        const h = canvas.offsetHeight || 300;
+
+                        const labels = this.postedMonths.map(
+                            (item) => `${item.label} ${item.year || ''}`.trim()
+                        );
                         const remainingData = this.postedMonths.map((item) => Number(item.remaining) || 0);
-                        const trendData = remainingData.map((value, index, arr) => {
-                            const prev = index > 0 ? arr[index - 1] : value;
-                            const next = index < arr.length - 1 ? arr[index + 1] : value;
-                            return (prev + value + next) / 3;
+
+                        // Smooth moving-average trend line
+                        const trendData = remainingData.map((v, i, arr) => {
+                            const prev = i > 0 ? arr[i - 1] : v;
+                            const next = i < arr.length - 1 ? arr[i + 1] : v;
+                            return (prev + v + next) / 3;
                         });
 
-                        const barGradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
-                        barGradient.addColorStop(0, 'rgba(70, 245, 255, 0.95)');
-                        barGradient.addColorStop(0.5, 'rgba(115, 221, 255, 0.85)');
-                        barGradient.addColorStop(1, 'rgba(58, 131, 255, 0.55)');
+                        // Per-bar gradients: teal for positive, rose for negative
+                        const barColors = remainingData.map((v) => {
+                            const g = ctx.createLinearGradient(0, 0, 0, h);
+                            if (v >= 0) {
+                                g.addColorStop(0,    'rgba(52, 231, 228, 0.95)');
+                                g.addColorStop(0.55, 'rgba(56, 189, 248, 0.80)');
+                                g.addColorStop(1,    'rgba(99, 102, 241, 0.50)');
+                            } else {
+                                g.addColorStop(0,    'rgba(251, 113, 133, 0.95)');
+                                g.addColorStop(0.55, 'rgba(244,  63,  94, 0.80)');
+                                g.addColorStop(1,    'rgba(159,  18,  57, 0.50)');
+                            }
+                            return g;
+                        });
 
-                        const lineGradient = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
-                        lineGradient.addColorStop(0, 'rgba(134, 196, 255, 0.45)');
-                        lineGradient.addColorStop(1, 'rgba(134, 196, 255, 0.03)');
+                        const barBorderColors = remainingData.map((v) =>
+                            v >= 0 ? 'rgba(103,232,249,0.9)' : 'rgba(253,164,175,0.9)'
+                        );
 
-                        if (this.chart) {
-                            this.chart.destroy();
-                        }
+                        // Soft gradient fill under the trend line
+                        const lineGrad = ctx.createLinearGradient(0, 0, 0, h);
+                        lineGrad.addColorStop(0, 'rgba(148, 210, 255, 0.30)');
+                        lineGrad.addColorStop(1, 'rgba(148, 210, 255, 0.00)');
+
+                        // Neon glow shadow plugin
+                        const glowPlugin = {
+                            id: 'barGlow',
+                            beforeDatasetDraw(chart, args) {
+                                if (args.index !== 0) return;
+                                const { ctx: c } = chart;
+                                c.save();
+                                c.shadowBlur    = 18;
+                                c.shadowOffsetX = 0;
+                                c.shadowOffsetY = 4;
+                                const meta = chart.getDatasetMeta(0);
+                                meta.data.forEach((bar, i) => {
+                                    const v = remainingData[i] ?? 0;
+                                    c.shadowColor = v >= 0
+                                        ? 'rgba(34, 211, 238, 0.55)'
+                                        : 'rgba(251, 113, 133, 0.55)';
+                                    c.fillStyle = bar.options.backgroundColor;
+                                    bar.draw(c);
+                                });
+                                c.restore();
+                            },
+                        };
+
+                        if (this.chart) this.chart.destroy();
 
                         this.chart = new Chart(canvas, {
                             type: 'bar',
+                            plugins: [glowPlugin],
                             data: {
-                                labels: labels,
+                                labels,
                                 datasets: [
                                     {
                                         type: 'bar',
-                                        label: 'Monthly Remaining',
+                                        label: 'Balance',
                                         data: remainingData,
-                                        backgroundColor: barGradient,
-                                        borderColor: 'rgba(120, 229, 255, 0.95)',
-                                        borderWidth: 1.1,
-                                        borderRadius: 8,
+                                        backgroundColor: barColors,
+                                        borderColor: barBorderColors,
+                                        borderWidth: 1.5,
+                                        borderRadius: 10,
                                         borderSkipped: false,
-                                        maxBarThickness: 26,
-                                        barPercentage: 0.58,
-                                        categoryPercentage: 0.72,
+                                        maxBarThickness: 28,
+                                        barPercentage: 0.60,
+                                        categoryPercentage: 0.74,
                                     },
                                     {
                                         type: 'line',
                                         label: 'Trend',
                                         data: trendData,
-                                        borderColor: 'rgba(177, 225, 255, 0.95)',
-                                        backgroundColor: lineGradient,
+                                        borderColor: 'rgba(186, 230, 255, 0.90)',
+                                        backgroundColor: lineGrad,
                                         fill: true,
-                                        tension: 0.42,
-                                        pointRadius: 2.5,
-                                        pointHoverRadius: 4,
-                                        pointBackgroundColor: 'rgba(214, 239, 255, 1)',
-                                        pointBorderColor: 'rgba(214, 239, 255, 0.65)',
+                                        tension: 0.45,
+                                        pointRadius: 4,
+                                        pointHoverRadius: 6,
+                                        pointBackgroundColor: '#fff',
+                                        pointBorderColor: 'rgba(148, 210, 255, 0.90)',
                                         pointBorderWidth: 2,
-                                        borderWidth: 2,
-                                    }
-                                ]
+                                        borderWidth: 2.2,
+                                    },
+                                ],
                             },
                             options: {
                                 responsive: true,
                                 maintainAspectRatio: false,
+                                animation: {
+                                    duration: 800,
+                                    easing: 'easeOutQuart',
+                                },
+                                interaction: {
+                                    mode: 'index',
+                                    intersect: false,
+                                },
                                 plugins: {
-                                    legend: {
-                                        display: false
-                                    },
+                                    legend: { display: false },
                                     tooltip: {
-                                        intersect: false,
-                                        mode: 'index',
+                                        backgroundColor: 'rgba(15, 23, 42, 0.88)',
+                                        borderColor: 'rgba(148, 210, 255, 0.25)',
+                                        borderWidth: 1,
+                                        titleColor: '#e2e8f0',
+                                        bodyColor: '#94a3b8',
+                                        padding: 12,
+                                        cornerRadius: 10,
+                                        displayColors: true,
+                                        boxWidth: 10,
+                                        boxHeight: 10,
                                         callbacks: {
-                                            label: (context) => ` ${context.dataset.label}: ${this.formatCurrency(context.raw)}`
-                                        }
-                                    }
+                                            label: (ctx) =>
+                                                `  ${ctx.dataset.label}: ${this.formatCurrency(ctx.raw)}`,
+                                        },
+                                    },
                                 },
                                 scales: {
                                     x: {
-                                        grid: {
-                                            display: false
-                                        },
+                                        grid: { display: false },
+                                        border: { display: false },
                                         ticks: {
-                                            color: '#9fb1d1',
-                                            font: {
-                                                size: 11,
-                                                weight: '600',
-                                            },
-                                        }
+                                            color: '#7e9ec3',
+                                            font: { size: 11, weight: '600' },
+                                            maxRotation: 45,
+                                            minRotation: 0,
+                                        },
                                     },
                                     y: {
                                         beginAtZero: true,
+                                        border: { display: false, dash: [4, 4] },
                                         grid: {
-                                            color: 'rgba(103, 86, 173, 0.28)',
-                                            drawBorder: false,
+                                            color: 'rgba(99, 102, 241, 0.15)',
                                         },
                                         ticks: {
-                                            color: '#8ea3c3',
-                                            font: {
-                                                size: 11,
-                                            },
-                                            callback: (value) => new Intl.NumberFormat('en-US', {
-                                                maximumFractionDigits: 0,
-                                            }).format(Number(value) || 0),
-                                        }
-                                    }
-                                }
-                            }
+                                            color: '#7e9ec3',
+                                            font: { size: 11 },
+                                            callback: (v) =>
+                                                new Intl.NumberFormat('en-US', {
+                                                    notation: 'compact',
+                                                    maximumFractionDigits: 1,
+                                                }).format(Number(v) || 0),
+                                        },
+                                    },
+                                },
+                            },
                         });
                     },
                     init() {
