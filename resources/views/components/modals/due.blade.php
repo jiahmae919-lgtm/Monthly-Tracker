@@ -39,7 +39,7 @@
                                             <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
                                                 x-text="expense.label || 'â€”'"></p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400"
-                                                x-text="`${expense.monthLabel} â€¢ ${expense.due_date ? formatPlannerDateOnly(expense.due_date) : 'No due date'}`">
+                                                x-text="`${expense.monthLabel} • ${expense.due_date ? formatPlannerDateOnly(expense.due_date) : 'No due date'}`">
                                             </p>
                                             <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium"
                                                 x-text="formatDaysUntil(expense.due_date)"></p>
@@ -66,7 +66,7 @@
                                             <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
                                                 x-text="expense.label || 'â€”'"></p>
                                             <p class="text-xs text-gray-500 dark:text-gray-400"
-                                                x-text="`${expense.monthLabel} â€¢ ${expense.due_date ? formatPlannerDateOnly(expense.due_date) : 'No due date'}`">
+                                                x-text="`${expense.monthLabel} • ${expense.due_date ? formatPlannerDateOnly(expense.due_date) : 'No due date'}`">
                                             </p>
                                             <p class="text-xs text-rose-600 dark:text-rose-400 font-medium"
                                                 x-text="formatOverdueText(expense.due_date)"></p>
